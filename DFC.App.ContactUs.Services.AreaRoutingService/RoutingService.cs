@@ -32,36 +32,36 @@ namespace DFC.App.ContactUs.Services.AreaRoutingService
                 case Category.Website:
                     logger.LogInformation($"{nameof(GetEmailToSendTo)} has been called for catergory {nameof(Category.Website)}");
 
-                    return famApiRoutingOptions.ProblemsEmailAddress;
+                    return await GetFamRoutingEmailAddress(postCode, famApiRoutingOptions.ProblemsEmailAddress).ConfigureAwait(false);
 
                 case Category.Feedback:
                     logger.LogInformation($"{nameof(GetEmailToSendTo)} has been called for catergory {nameof(Category.Feedback)}");
 
-                    return famApiRoutingOptions.FeebackEmailAddress;
+                    return await GetFamRoutingEmailAddress(postCode, famApiRoutingOptions.FeebackEmailAddress).ConfigureAwait(false);
 
                 case Category.Other:
                     logger.LogInformation($"{nameof(GetEmailToSendTo)} has been called for catergory {nameof(Category.Other)}");
 
-                    return famApiRoutingOptions.OtherEmailAddress;
+                    return await GetFamRoutingEmailAddress(postCode, famApiRoutingOptions.OtherEmailAddress).ConfigureAwait(false);
 
                 case Category.AdviceGuidance:
                 case Category.Courses:
                     logger.LogInformation($"{nameof(GetEmailToSendTo)} has been called for catergory {nameof(Category.Courses)}");
 
-                    return await GetFamRoutingEmailAddress(postCode).ConfigureAwait(false);
+                    return await GetFamRoutingEmailAddress(postCode, famApiRoutingOptions.FallbackEmailToAddresses).ConfigureAwait(false);
 
                 default:
                     throw new InvalidEnumArgumentException(nameof(contactCategory), (int)contactCategory, contactCategory.GetType());
             }
         }
 
-        private async Task<string> GetFamRoutingEmailAddress(string postCode)
+        private async Task<string> GetFamRoutingEmailAddress(string postCode, string defaultEmailAddress)
         {
             logger.LogInformation($"{nameof(GetFamRoutingEmailAddress)} has been called");
 
             var url = new Uri($"{famApiRoutingOptions.BaseAddress}{famApiRoutingOptions.AreaRoutingEndpoint}{postCode}", UriKind.Absolute);
             var famRouting = await apiDataProcessorService.GetAsync<RoutingDetailModel>(httpClient, url).ConfigureAwait(false);
-            return famRouting?.EmailAddress ?? famApiRoutingOptions.FallbackEmailToAddresses;
+            return famRouting?.EmailAddress ?? defaultEmailAddress;
         }
     }
 }
