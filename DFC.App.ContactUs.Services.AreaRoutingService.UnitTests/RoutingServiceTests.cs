@@ -45,7 +45,7 @@ namespace DFC.App.ContactUs.Services.AreaRoutingService.UnitTests
             var result = await routingService.GetEmailToSendTo(ValidPostcode, selectedCategory).ConfigureAwait(false);
 
             // assert
-            A.CallTo(() => fakeApiDataProcessorService.GetAsync<RoutingDetailModel>(A<HttpClient>.Ignored, A<Uri>.Ignored)).MustNotHaveHappened();
+            A.CallTo(() => fakeApiDataProcessorService.GetAsync<RoutingDetailModel>(A<HttpClient>.Ignored, A<Uri>.Ignored)).MustHaveHappenedOnceExactly();
             result.Should().Be(expectedEmail);
         }
 
